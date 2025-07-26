@@ -1,57 +1,46 @@
 import { DeckModel } from "../models/DeckModel.js";
 import { logger } from "../config/appConfig.js";
+import { db } from "../config/firebase.js";
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 
 /**
- * Deck service using MongoDB Atlas Data API
- * Direct connection to MongoDB without backend API
+ * Deck service using Firebase Firestore
+ * Direct connection to Firestore database
  */
 export class DeckService {
   constructor() {
-    this.baseUrl = import.meta.env.VITE_MONGODB_DATA_API_URL;
-    this.apiKey = import.meta.env.VITE_MONGODB_API_KEY;
-    this.dataSource = import.meta.env.VITE_MONGODB_DATA_SOURCE || "Cluster0";
-    this.database = import.meta.env.VITE_DB_NAME || "GridStrikeDb";
-    this.collection = import.meta.env.VITE_COLLECTION_DECKS || "Decks";
+    this.collectionName = import.meta.env.VITE_COLLECTION_DECKS || "decks";
+    this.decksRef = collection(db, this.collectionName);
+    logger.info(
+      "DeckService initialized with Firestore collection:",
+      this.collectionName
+    );
   }
 
   /**
-   * Make MongoDB Data API request
-   */
-  async makeRequest(action, body = {}) {
-    const response = await fetch(`${this.baseUrl}/action/${action}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": this.apiKey,
-      },
-      body: JSON.stringify({
-        dataSource: this.dataSource,
-        database: this.database,
-        collection: this.collection,
-        ...body,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `MongoDB API Error: ${response.status} ${response.statusText}`
-      );
-    }
-
-    return response.json();
-  }
-
-  /**
-   * Get all decks from MongoDB
+   * Get all decks from Firestore
    */
   async getAllAsync() {
     try {
-      logger.debug("Fetching all decks from MongoDB");
-      const result = await this.makeRequest("find", {
-        filter: {}, // Empty filter = get all
+      logger.debug("Fetching all decks from Firestore");
+      const querySnapshot = await getDocs(this.decksRef);
+
+      const decks = [];
+      querySnapshot.forEach((doc) => {
+        decks.push(DeckModel.fromJSON({ id: doc.id, ...doc.data() }));
       });
 
-      const decks = result.documents.map((doc) => DeckModel.fromJSON(doc));
       logger.info(`Successfully fetched ${decks.length} decks`);
       return decks;
     } catch (error) {
@@ -66,15 +55,14 @@ export class DeckService {
   async getByIdAsync(id) {
     try {
       logger.debug(`Fetching deck ${id}`);
-      const result = await this.makeRequest("findOne", {
-        filter: { _id: { $oid: id } },
-      });
+      const deckDoc = doc(db, this.collectionName, id);
+      const docSnap = await getDoc(deckDoc);
 
-      if (!result.document) {
+      if (docSnap.exists()) {
+        return DeckModel.fromJSON({ id: docSnap.id, ...docSnap.data() });
+      } else {
         return null;
       }
-
-      return DeckModel.fromJSON(result.document);
     } catch (error) {
       logger.error(`Error fetching deck ${id}`, error);
       throw error;
@@ -89,14 +77,14 @@ export class DeckService {
       logger.debug("Creating new deck");
       const deckData = deck instanceof DeckModel ? deck.toJSON() : deck;
 
-      const result = await this.makeRequest("insertOne", {
-        document: deckData,
-      });
+      // Remove id field if present, Firestore will generate one
+      const { id, ...dataToAdd } = deckData;
 
-      // Return the created deck with the new _id
-      const createdDeck = { ...deckData, id: result.insertedId };
-      logger.info("Successfully created deck");
-      return DeckModel.fromJSON(createdDeck);
+      const docRef = await addDoc(this.decksRef, dataToAdd);
+
+      const createdDeck = DeckModel.fromJSON({ id: docRef.id, ...dataToAdd });
+      logger.info(`Successfully created deck: ${createdDeck.name}`);
+      return createdDeck;
     } catch (error) {
       logger.error("Error creating deck:", error);
       throw error;
@@ -112,17 +100,15 @@ export class DeckService {
       const deckData =
         updatedDeck instanceof DeckModel ? updatedDeck.toJSON() : updatedDeck;
 
-      const result = await this.makeRequest("updateOne", {
-        filter: { _id: { $oid: id } },
-        update: { $set: deckData },
-      });
+      // Remove id field from data to update
+      const { id: deckId, ...dataToUpdate } = deckData;
 
-      if (result.matchedCount === 0) {
-        throw new Error(`Deck with id ${id} not found`);
-      }
+      const deckDoc = doc(db, this.collectionName, id);
+      await updateDoc(deckDoc, dataToUpdate);
 
-      logger.info(`Successfully updated deck ${id}`);
-      return DeckModel.fromJSON({ ...deckData, id });
+      const updated = DeckModel.fromJSON({ id, ...dataToUpdate });
+      logger.info(`Successfully updated deck: ${updated.name}`);
+      return updated;
     } catch (error) {
       logger.error(`Error updating deck ${id}:`, error);
       throw error;
@@ -135,12 +121,11 @@ export class DeckService {
   async deleteAsync(id) {
     try {
       logger.debug(`Deleting deck ${id}`);
-      const result = await this.makeRequest("deleteOne", {
-        filter: { _id: { $oid: id } },
-      });
+      const deckDoc = doc(db, this.collectionName, id);
+      await deleteDoc(deckDoc);
 
       logger.info(`Successfully deleted deck ${id}`);
-      return result.deletedCount > 0;
+      return true;
     } catch (error) {
       logger.error(`Error deleting deck ${id}:`, error);
       throw error;
@@ -153,11 +138,14 @@ export class DeckService {
   async getByUserAsync(userId) {
     try {
       logger.debug(`Fetching decks for user ${userId}`);
-      const result = await this.makeRequest("find", {
-        filter: { userId: userId }, // Assuming decks have a userId field
+      const q = query(this.decksRef, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+
+      const decks = [];
+      querySnapshot.forEach((doc) => {
+        decks.push(DeckModel.fromJSON({ id: doc.id, ...doc.data() }));
       });
 
-      const decks = result.documents.map((doc) => DeckModel.fromJSON(doc));
       logger.info(
         `Successfully fetched ${decks.length} decks for user ${userId}`
       );
@@ -174,13 +162,23 @@ export class DeckService {
   async searchAsync(searchTerm) {
     try {
       logger.debug(`Searching decks with term: ${searchTerm}`);
-      const result = await this.makeRequest("find", {
-        filter: {
-          name: { $regex: searchTerm, $options: "i" }, // Case-insensitive search
-        },
+
+      // Get all decks and filter client-side (Firestore doesn't support case-insensitive contains)
+      const querySnapshot = await getDocs(this.decksRef);
+
+      const decks = [];
+      const searchLower = searchTerm.toLowerCase();
+
+      querySnapshot.forEach((doc) => {
+        const deckData = doc.data();
+        if (
+          deckData.name &&
+          deckData.name.toLowerCase().includes(searchLower)
+        ) {
+          decks.push(DeckModel.fromJSON({ id: doc.id, ...deckData }));
+        }
       });
 
-      const decks = result.documents.map((doc) => DeckModel.fromJSON(doc));
       logger.info(`Found ${decks.length} decks matching search term`);
       return decks;
     } catch (error) {
@@ -195,11 +193,14 @@ export class DeckService {
   async getByFactionAsync(faction) {
     try {
       logger.debug(`Fetching decks for faction: ${faction}`);
-      const result = await this.makeRequest("find", {
-        filter: { faction: faction },
+      const q = query(this.decksRef, where("faction", "==", faction));
+      const querySnapshot = await getDocs(q);
+
+      const decks = [];
+      querySnapshot.forEach((doc) => {
+        decks.push(DeckModel.fromJSON({ id: doc.id, ...doc.data() }));
       });
 
-      const decks = result.documents.map((doc) => DeckModel.fromJSON(doc));
       logger.info(`Successfully fetched ${decks.length} ${faction} decks`);
       return decks;
     } catch (error) {
@@ -213,20 +214,36 @@ export class DeckService {
    */
   async searchWithFiltersAsync(filters = {}) {
     try {
-      const mongoFilter = {};
+      logger.debug("Searching decks with filters:", filters);
 
-      // Convert React filters to MongoDB filter format
-      if (filters.faction) mongoFilter.faction = filters.faction;
-      if (filters.name) {
-        mongoFilter.name = { $regex: filters.name, $options: "i" };
+      let q = query(this.decksRef);
+
+      // Apply Firestore-supported filters
+      if (filters.faction) {
+        q = query(q, where("faction", "==", filters.faction));
       }
-      if (filters.userId) mongoFilter.userId = filters.userId;
 
-      const result = await this.makeRequest("find", {
-        filter: mongoFilter,
+      if (filters.userId) {
+        q = query(q, where("userId", "==", filters.userId));
+      }
+
+      const querySnapshot = await getDocs(q);
+
+      let decks = [];
+      querySnapshot.forEach((doc) => {
+        decks.push(DeckModel.fromJSON({ id: doc.id, ...doc.data() }));
       });
 
-      return result.documents.map((doc) => DeckModel.fromJSON(doc));
+      // Client-side filtering for name (case-insensitive contains)
+      if (filters.name) {
+        const searchLower = filters.name.toLowerCase();
+        decks = decks.filter(
+          (deck) => deck.name && deck.name.toLowerCase().includes(searchLower)
+        );
+      }
+
+      logger.info(`Found ${decks.length} decks matching filters`);
+      return decks;
     } catch (error) {
       logger.error("Error searching decks with filters:", error);
       throw error;

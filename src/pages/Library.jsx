@@ -28,9 +28,11 @@ const Library = () => {
   }, []);
 
   const loadCards = async () => {
+    // debugger
     try {
       setIsLoading(true);
-      const loadedCards = await cardService.getAll();
+      // Change from getAll() to getAllAsync()
+      const loadedCards = await cardService.getAllAsync();
       setCards(loadedCards);
     } catch (error) {
       console.error('Failed to load cards:', error);
@@ -57,14 +59,14 @@ const Library = () => {
         // Generate new ID for new cards
         updatedCard.id = crypto.randomUUID();
         
-        // Save to database
-        const savedCard = await cardService.create(updatedCard);
+        // Save to database - Change from create() to createAsync()
+        const savedCard = await cardService.createAsync(updatedCard);
         
         // Add to local state
         setCards(prev => [...prev, savedCard]);
       } else {
-        // Update existing card
-        const savedCard = await cardService.update(updatedCard.id, updatedCard);
+        // Update existing card - Change from update() to updateAsync()
+        const savedCard = await cardService.updateAsync(updatedCard.id, updatedCard);
         
         // Update in local state
         setCards(prev => prev.map(c => c.id === updatedCard.id ? savedCard : c));
@@ -83,8 +85,8 @@ const Library = () => {
     }
 
     try {
-      // Remove from database
-      await cardService.delete(card.id);
+      // Remove from database - Change from delete() to deleteAsync()
+      await cardService.deleteAsync(card.id);
       
       // Remove from local state
       setCards(prev => prev.filter(c => c.id !== card.id));

@@ -16,11 +16,12 @@ export const appConfig = {
     },
   },
 
-  // MongoDB equivalent settings for API communication
-  mongoDb: {
-    databaseName: import.meta.env.VITE_DB_NAME || "GridStrikeDb",
-    collectionName: import.meta.env.VITE_COLLECTION_CARDS || "Cards",
-    deckCollectionName: import.meta.env.VITE_COLLECTION_DECKS || "Decks",
+  // Firestore collection settings
+  firestore: {
+    collections: {
+      cards: import.meta.env.VITE_COLLECTION_CARDS || "cards",
+      decks: import.meta.env.VITE_COLLECTION_DECKS || "decks",
+    },
   },
 };
 

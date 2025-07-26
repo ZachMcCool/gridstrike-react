@@ -1,53 +1,48 @@
 /**
  * API Configuration settings
- * Equivalent to MongoDbSettings.cs but for frontend API calls
+ * Configuration for Firebase Firestore
+ *
+ * Note: This app now uses Firebase Firestore directly from the client.
+ * The API endpoints below are kept for reference but are not actively used.
  */
 export const apiConfig = {
-  // Base API URL - uses environment variables
-  baseUrl:
-    import.meta.env.VITE_API_BASE_URL ||
-    (import.meta.env.DEV
-      ? "http://localhost:5000/api"
-      : "https://your-production-api.com/api"),
+  // Legacy API configuration (not used with Firestore)
+  baseUrl: "not-used-with-firestore",
 
-  // API endpoints
+  // Legacy API endpoints (not used with Firestore)
   endpoints: {
     cards: "/cards",
     decks: "/decks",
-    // Add other endpoints as needed
     search: "/cards/search",
     seed: "/cards/seed",
   },
 
-  // Database/Collection names (from environment or defaults)
-  database: {
-    name: import.meta.env.VITE_DB_NAME || "GridStrikeDb",
+  // Firestore collections
+  firestore: {
     collections: {
-      cards: import.meta.env.VITE_COLLECTION_CARDS || "Cards",
-      decks: import.meta.env.VITE_COLLECTION_DECKS || "Decks",
+      cards: import.meta.env.VITE_COLLECTION_CARDS || "cards",
+      decks: import.meta.env.VITE_COLLECTION_DECKS || "decks",
     },
   },
 
-  // Request configuration
+  // Request configuration (legacy, not used with Firestore)
   request: {
-    timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000, // 10 seconds
+    timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
     headers: {
       "Content-Type": "application/json",
-      // Add authentication headers here if needed
-      // 'Authorization': 'Bearer token'
     },
   },
 };
 
 /**
- * Environment-specific configuration
+ * Legacy helper functions (not used with Firestore)
  */
 export const getApiUrl = (endpoint = "") => {
-  return `${apiConfig.baseUrl}${endpoint}`;
+  return `not-used-with-firestore${endpoint}`;
 };
 
 /**
- * Get full endpoint URL
+ * Legacy endpoint URL helper (not used with Firestore)
  */
 export const getEndpointUrl = (endpointKey) => {
   const endpoint = apiConfig.endpoints[endpointKey];
@@ -58,11 +53,10 @@ export const getEndpointUrl = (endpointKey) => {
 };
 
 /**
- * Default fetch configuration
+ * Legacy fetch configuration (not used with Firestore)
  */
 export const defaultFetchConfig = {
   headers: apiConfig.request.headers,
-  // Add other default config like credentials, mode, etc.
 };
 
 export default apiConfig;

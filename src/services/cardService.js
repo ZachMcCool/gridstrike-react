@@ -1,57 +1,46 @@
 import { CardModel } from "../models/CardModel.js";
 import { logger } from "../config/appConfig.js";
+import { db } from "../config/firebase.js";
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 
 /**
- * Card service using MongoDB Atlas Data API
- * Direct connection to MongoDB without backend API
+ * Card service using Firebase Firestore
+ * Direct connection to Firestore database
  */
 export class CardService {
   constructor() {
-    this.baseUrl = import.meta.env.VITE_MONGODB_DATA_API_URL;
-    this.apiKey = import.meta.env.VITE_MONGODB_API_KEY;
-    this.dataSource = import.meta.env.VITE_MONGODB_DATA_SOURCE || "Cluster0";
-    this.database = import.meta.env.VITE_DB_NAME || "GridStrikeDb";
-    this.collection = import.meta.env.VITE_COLLECTION_CARDS || "Cards";
+    this.collectionName = import.meta.env.VITE_COLLECTION_CARDS || "cards";
+    this.cardsRef = collection(db, this.collectionName);
+    logger.info(
+      "CardService initialized with Firestore collection:",
+      this.collectionName
+    );
   }
 
   /**
-   * Make MongoDB Data API request
-   */
-  async makeRequest(action, body = {}) {
-    const response = await fetch(`${this.baseUrl}/action/${action}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": this.apiKey,
-      },
-      body: JSON.stringify({
-        dataSource: this.dataSource,
-        database: this.database,
-        collection: this.collection,
-        ...body,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `MongoDB API Error: ${response.status} ${response.statusText}`
-      );
-    }
-
-    return response.json();
-  }
-
-  /**
-   * Get all cards from MongoDB
+   * Get all cards from Firestore
    */
   async getAllAsync() {
     try {
-      logger.debug("Fetching all cards from MongoDB");
-      const result = await this.makeRequest("find", {
-        filter: {}, // Empty filter = get all
+      logger.debug("Fetching all cards from Firestore");
+      const querySnapshot = await getDocs(this.cardsRef);
+
+      const cards = [];
+      querySnapshot.forEach((doc) => {
+        cards.push(CardModel.fromJSON({ id: doc.id, ...doc.data() }));
       });
 
-      const cards = result.documents.map((doc) => CardModel.fromJSON(doc));
       logger.info(`Successfully fetched ${cards.length} cards`);
       return cards;
     } catch (error) {
@@ -65,11 +54,15 @@ export class CardService {
    */
   async getByIdAsync(id) {
     try {
-      const result = await this.makeRequest("findOne", {
-        filter: { _id: { $oid: id } },
-      });
+      logger.debug(`Fetching card ${id}`);
+      const cardDoc = doc(db, this.collectionName, id);
+      const docSnap = await getDoc(cardDoc);
 
-      return result.document ? CardModel.fromJSON(result.document) : null;
+      if (docSnap.exists()) {
+        return CardModel.fromJSON({ id: docSnap.id, ...docSnap.data() });
+      } else {
+        return null;
+      }
     } catch (error) {
       logger.error(`Error fetching card ${id}`, error);
       throw error;
@@ -81,15 +74,17 @@ export class CardService {
    */
   async createAsync(card) {
     try {
+      logger.debug("Creating new card");
       const cardData = card instanceof CardModel ? card.toJSON() : card;
 
-      const result = await this.makeRequest("insertOne", {
-        document: cardData,
-      });
+      // Remove id field if present, Firestore will generate one
+      const { id, ...dataToAdd } = cardData;
 
-      // Return the created card with the new _id
-      const createdCard = { ...cardData, id: result.insertedId };
-      return CardModel.fromJSON(createdCard);
+      const docRef = await addDoc(this.cardsRef, dataToAdd);
+
+      const createdCard = CardModel.fromJSON({ id: docRef.id, ...dataToAdd });
+      logger.info(`Successfully created card: ${createdCard.cardName}`);
+      return createdCard;
     } catch (error) {
       logger.error("Error creating card:", error);
       throw error;
@@ -101,19 +96,19 @@ export class CardService {
    */
   async updateAsync(id, updatedCard) {
     try {
+      logger.debug(`Updating card ${id}`);
       const cardData =
         updatedCard instanceof CardModel ? updatedCard.toJSON() : updatedCard;
 
-      const result = await this.makeRequest("updateOne", {
-        filter: { _id: { $oid: id } },
-        update: { $set: cardData },
-      });
+      // Remove id field from data to update
+      const { id: cardId, ...dataToUpdate } = cardData;
 
-      if (result.matchedCount === 0) {
-        throw new Error(`Card with id ${id} not found`);
-      }
+      const cardDoc = doc(db, this.collectionName, id);
+      await updateDoc(cardDoc, dataToUpdate);
 
-      return CardModel.fromJSON({ ...cardData, id });
+      const updated = CardModel.fromJSON({ id, ...dataToUpdate });
+      logger.info(`Successfully updated card: ${updated.cardName}`);
+      return updated;
     } catch (error) {
       logger.error(`Error updating card ${id}:`, error);
       throw error;
@@ -125,11 +120,12 @@ export class CardService {
    */
   async deleteAsync(id) {
     try {
-      const result = await this.makeRequest("deleteOne", {
-        filter: { _id: { $oid: id } },
-      });
+      logger.debug(`Deleting card ${id}`);
+      const cardDoc = doc(db, this.collectionName, id);
+      await deleteDoc(cardDoc);
 
-      return result.deletedCount > 0;
+      logger.info(`Successfully deleted card ${id}`);
+      return true;
     } catch (error) {
       logger.error(`Error deleting card ${id}:`, error);
       throw error;
@@ -141,21 +137,43 @@ export class CardService {
    */
   async searchAsync(filters = {}) {
     try {
-      const mongoFilter = {};
+      logger.debug("Searching cards with filters:", filters);
 
-      // Convert React filters to MongoDB filter format
-      if (filters.faction) mongoFilter.faction = filters.faction;
-      if (filters.cardType) mongoFilter.cardType = filters.cardType;
-      if (filters.rarity) mongoFilter.rarity = filters.rarity;
-      if (filters.cardName) {
-        mongoFilter.cardName = { $regex: filters.cardName, $options: "i" };
+      let q = query(this.cardsRef);
+
+      // Apply filters
+      if (filters.faction) {
+        q = query(q, where("faction", "==", filters.faction));
       }
 
-      const result = await this.makeRequest("find", {
-        filter: mongoFilter,
+      if (filters.cardType) {
+        q = query(q, where("cardType", "==", filters.cardType));
+      }
+
+      if (filters.rarity) {
+        q = query(q, where("rarity", "==", filters.rarity));
+      }
+
+      // Add ordering
+      q = query(q, orderBy("cardName"));
+
+      const querySnapshot = await getDocs(q);
+
+      let cards = [];
+      querySnapshot.forEach((doc) => {
+        cards.push(CardModel.fromJSON({ id: doc.id, ...doc.data() }));
       });
 
-      return result.documents.map((doc) => CardModel.fromJSON(doc));
+      // Client-side filtering for cardName (Firestore doesn't support case-insensitive regex)
+      if (filters.cardName) {
+        const searchTerm = filters.cardName.toLowerCase();
+        cards = cards.filter((card) =>
+          card.cardName.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      logger.info(`Found ${cards.length} cards matching filters`);
+      return cards;
     } catch (error) {
       logger.error("Error searching cards:", error);
       throw error;

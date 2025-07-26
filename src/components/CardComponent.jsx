@@ -63,9 +63,9 @@ const CardComponent = ({
         {card.cardType === "Unit" && (
           <>
             <div className="gridstrike-card-stats">
-              <span>❤ {card.hp}</span>
-              <span>🛡️ {card.ac}</span>
-              <span>🏃 {card.move}</span>
+              <span><i className="fas fa-heart"></i> {card.hp}</span>
+              <span><i className="fas fa-shield-alt"></i> {card.ac}</span>
+              <span><i className="fas fa-running"></i> {card.move}</span>
             </div>
 
             {card.keywords && card.keywords.length > 0 && (
@@ -99,8 +99,8 @@ const CardComponent = ({
           <div className="gridstrike-card-stats">
             {card.isDestructible && (
               <>
-                <span>❤ {card.hp}</span>
-                {card.ac > 0 && <span>🛡️ {card.ac}</span>}
+                <span><i className="fas fa-heart"></i> {card.hp}</span>
+                {card.ac > 0 && <span><i className="fas fa-shield-alt"></i> {card.ac}</span>}
               </>
             )}
           </div>
@@ -110,7 +110,7 @@ const CardComponent = ({
         {(card.cardType === "Unit" || card.cardType === "Terrain") && 
          card.weapons && card.weapons.length > 0 && (
           <div className="gridstrike-card-section">
-            <h4>Weapons</h4>
+            <h4><i className="fas fa-sword"></i> Weapons</h4>
             {card.weapons.map((weapon, index) => (
               <p key={index}>
                 <strong>{weapon.name}</strong> - [{weapon.type}
@@ -126,7 +126,7 @@ const CardComponent = ({
         {card.abilities && card.abilities.length > 0 && (
           <div className="gridstrike-card-section">
             <h4>
-              {card.cardType === "Terrain" && card.auraType 
+              <i className="fas fa-magic"></i> {card.cardType === "Terrain" && card.auraType 
                 ? card.auraType 
                 : "Abilities"}
             </h4>
@@ -164,7 +164,7 @@ const CardComponent = ({
             onClick={handleEdit}
             title="Edit Card"
           >
-            ✎
+            <i className="fas fa-edit"></i>
           </button>
           <button 
             className="download-button" 
@@ -172,14 +172,14 @@ const CardComponent = ({
             title="Export Card"
             data-cardname={card.cardName}
           >
-            📥
+            <i className="fas fa-download"></i>
           </button>
           <button 
             className="delete-button" 
             onClick={handleDelete}
             title="Delete Card"
           >
-            🗑
+            <i className="fas fa-trash"></i>
           </button>
         </div>
       )}

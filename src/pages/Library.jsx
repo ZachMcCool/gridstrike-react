@@ -349,20 +349,20 @@ const Library = () => {
 
       <div className="action-buttons">
         <button className="btn btn-success" onClick={openNewCardModal}>
-          + New Card
+          <i className="fas fa-plus"></i> New Card
         </button>
         <button 
           className="btn btn-info" 
           onClick={handleImportClick}
           disabled={isImporting}
         >
-          {isImporting ? '📤 Importing...' : '📁 Import Cards'}
+          {isImporting ? <><i className="fas fa-upload"></i> Importing...</> : <><i className="fas fa-file-import"></i> Import Cards</>}
         </button>
         <button className="btn btn-primary" onClick={downloadAllCards}>
-          Download All Cards
+          <i className="fas fa-download"></i> Download All Cards
         </button>
         <button className="btn btn-primary" onClick={exportCards}>
-          Export Cards
+          <i className="fas fa-file-export"></i> Export Cards
         </button>
         <input
           id="card-import-input"

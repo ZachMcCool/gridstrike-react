@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import html2canvas from 'html2canvas';
 import { CardModel } from '../models/CardModel.js';
 import './CardComponent.css';
 
@@ -24,12 +25,55 @@ const CardComponent = ({
     if (onDelete) onDelete(card);
   };
 
-  const handleExport = (e) => {
+  const handleExport = async (e) => {
     e.stopPropagation();
-    if (onExport) {
+    
+    try {
       const elementId = card.cardName.replace(/\s+/g, '').toLowerCase();
       const safeName = card.cardName.replace(/[<>:"/\\|?*]/g, '');
-      onExport(elementId, safeName);
+      
+      const element = document.getElementById(elementId);
+      if (!element) {
+        console.error(`Element with ID '${elementId}' not found.`);
+        alert('Could not find card element to export.');
+        return;
+      }
+
+      // Show loading state (optional)
+      const button = e.target.closest('button');
+      const originalContent = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      button.disabled = true;
+
+      // Capture the card as image
+      const canvas = await html2canvas(element, { 
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true
+      });
+      
+      const dataUrl = canvas.toDataURL("image/png");
+
+      // Create download link
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = safeName + ".png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Restore button state
+      button.innerHTML = originalContent;
+      button.disabled = false;
+      
+    } catch (error) {
+      console.error('Error exporting card:', error);
+      alert('Failed to export card image. Please try again.');
+      
+      // Restore button state on error
+      const button = e.target.closest('button');
+      button.innerHTML = '<i class="fas fa-download"></i>';
+      button.disabled = false;
     }
   };
 

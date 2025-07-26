@@ -6,12 +6,15 @@
   background-color: #f5f5f5;
   padding: 4px;
   border-radius: 8px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .gridstrike-card {
   position: relative;
   width: 300px;
   height: 420px;
+  max-width: 100%;
   box-sizing: border-box;
   padding: 8px;
   background-color: #ffffff;
@@ -26,6 +29,8 @@
   cursor: pointer;
   font-size: 0.8rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Ensure card has proper background for export */
+  background-clip: padding-box;
 }
 
 .gridstrike-card:hover {
@@ -346,4 +351,9 @@
     border: 2px solid #000;
     break-inside: avoid;
   }
+}
+
+/* Card export styling - ensure clean image capture */
+.gridstrike-card.exporting .gridstrike-card-controls {
+  display: none;
 }

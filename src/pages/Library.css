@@ -1,0 +1,214 @@
+/* Library Page Styles */
+
+.library-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  color: #333;
+}
+
+.library-page h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Filters Section */
+.filters {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 200px 200px;
+  gap: 1rem;
+  align-items: start;
+  color: #333;
+}
+
+.filters fieldset {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin: 0;
+}
+
+.filters legend {
+  font-weight: 600;
+  color: #333;
+  padding: 0 0.5rem;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.filters label:last-child {
+  margin-bottom: 0;
+}
+
+.filters input[type="checkbox"] {
+  margin: 0;
+}
+
+.filters > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filters select,
+.filters input[type="text"] {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Gallery */
+.card-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* No Cards Message */
+.no-cards {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  padding: 3rem;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .card-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .library-page {
+    padding: 1rem;
+  }
+  
+  .library-page h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .filters {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .card-gallery {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .library-page {
+    padding: 0.5rem;
+  }
+  
+  .filters {
+    padding: 0.75rem;
+  }
+  
+  .filters fieldset {
+    padding: 0.5rem;
+  }
+  
+  .filters label {
+    font-size: 0.85rem;
+  }
+}

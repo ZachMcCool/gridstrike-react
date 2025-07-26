@@ -1,0 +1,304 @@
+/* CardComponent CSS - GridStrike Card Display Styles */
+
+.card-container {
+  display: inline-block;
+  margin: 8px;
+  background-color: #f5f5f5;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.gridstrike-card {
+  position: relative;
+  width: 300px;
+  height: 420px;
+  box-sizing: border-box;
+  padding: 8px;
+  background-color: #ffffff;
+  border: 3px solid #222;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gridstrike-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Faction-based color themes */
+.gridstrike-card.Red {
+  background: linear-gradient(to bottom right, #ffcccc, #ff6666);
+  color: #000000;
+}
+
+.gridstrike-card.Green {
+  background: linear-gradient(to bottom right, #ccffcc, #66ff66);
+  color: #000000;
+}
+
+.gridstrike-card.Colorless {
+  background: linear-gradient(to bottom right, #dddddd, #bbbbbb);
+  color: #000000;
+}
+
+.gridstrike-card.Black {
+  background: linear-gradient(to bottom right, #4a4a4a, #666666);
+  color: #ffffff;
+}
+
+.gridstrike-card.Black .gridstrike-card-cost {
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+.gridstrike-card.White {
+  background: linear-gradient(to bottom right, #fff8dc, #ffd700);
+  color: #000000;
+}
+
+.gridstrike-card.Blue {
+  background: linear-gradient(to bottom right, #cce6ff, #3399ff);
+  color: #000000;
+}
+
+/* Energy Cost - Top Right */
+.gridstrike-card-cost {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border: 2px solid black;
+  background-color: white;
+  color: black;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* Header */
+.gridstrike-card-header {
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.gridstrike-card-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  max-height: 2.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gridstrike-card-header p {
+  margin: 1px 0;
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
+
+.gridstrike-card-header span {
+  font-style: italic;
+}
+
+/* Stats */
+.gridstrike-card-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin: 4px 0;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding: 2px 0;
+  font-weight: 600;
+}
+
+.gridstrike-card-stats span {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Sections */
+.gridstrike-card-section {
+  overflow-y: auto;
+  margin: 2px 0;
+  flex-shrink: 1;
+}
+
+.gridstrike-card-section h4 {
+  margin: 4px 0 1px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1px;
+  font-weight: 600;
+}
+
+.gridstrike-card-section p {
+  margin: 2px 0;
+  font-size: 0.75rem;
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+.gridstrike-card-section strong {
+  font-weight: 600;
+}
+
+/* Keywords */
+.gridstrike-card-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0;
+}
+
+.tag {
+  background-color: #eee;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  border: 1px solid #ccc;
+}
+
+/* Footer */
+.gridstrike-card-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 0.75rem;
+  border-top: 1px solid #ccc;
+  padding-top: 2px;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.legendary-footer {
+  color: gold;
+  font-size: 0.85rem;
+  line-height: 1;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Controls */
+.gridstrike-card-controls {
+  display: flex;
+  justify-content: center;
+  margin: 0.2rem;
+  gap: 1rem;
+}
+
+.gridstrike-card-controls button {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gridstrike-card-controls button:hover {
+  background: #e0e0e0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gridstrike-card-controls button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.edit-button {
+  background: #4CAF50;
+  color: white;
+  border-color: #45a049;
+}
+
+.edit-button:hover {
+  background: #45a049;
+}
+
+.download-button {
+  background: #2196F3;
+  color: white;
+  border-color: #1976D2;
+}
+
+.download-button:hover {
+  background: #1976D2;
+}
+
+.delete-button {
+  background: #f44336;
+  color: white;
+  border-color: #d32f2f;
+}
+
+.delete-button:hover {
+  background: #d32f2f;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .gridstrike-card {
+    width: 280px;
+    height: 390px;
+    font-size: 0.75rem;
+  }
+  
+  .gridstrike-card-cost {
+    width: 24px;
+    height: 24px;
+    font-size: 0.85rem;
+  }
+  
+  .gridstrike-card-header h2 {
+    font-size: 0.85rem;
+  }
+  
+  .gridstrike-card-controls {
+    gap: 0.5rem;
+  }
+  
+  .gridstrike-card-controls button {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .gridstrike-card-controls {
+    display: none;
+  }
+  
+  .gridstrike-card {
+    box-shadow: none;
+    border: 2px solid #000;
+    break-inside: avoid;
+  }
+}

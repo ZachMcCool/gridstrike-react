@@ -1,0 +1,178 @@
+/* -------- Modal Layout & Base Styles -------- */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+        "body preview"
+        "footer footer";
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* -------- Top-right close button -------- */
+.close-button {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #555;
+    cursor: pointer;
+}
+
+/* -------- Form Layout -------- */
+.modal-body {
+    grid-area: body;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    min-width: 0;
+}
+
+.section {
+    margin-bottom: 1rem;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+.modal-content textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* -------- Horizontal Layout for Inputs -------- */
+.horizontal-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+    .horizontal-input input[type="number"],
+    .horizontal-input input[type="checkbox"] {
+        max-width: 100px;
+        flex-shrink: 0;
+    }
+
+/* -------- Weapon & Ability Editor Layout -------- */
+.horizontal-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nested-form {
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    border-radius: 6px;
+    flex: 1 1 48%;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem;
+}
+
+.nested-form button {
+    width: fit-content;
+    margin-left: auto;
+}
+
+/* -------- Footer -------- */
+.modal-footer {
+    grid-area: footer;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem;
+    border-top: 1px solid #ccc;
+    background-color: #f8f8f8;
+}
+
+/* -------- Preview Section -------- */
+.preview-section {
+    grid-area: preview;
+    padding: 1rem;
+    background: #f4f4f4;
+    border-left: 1px solid #ccc;
+    overflow-y: auto;
+    min-width: 300px;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: #222;
+    text-align: center;
+}
+
+/* -------- Optional Buttons (if used elsewhere) -------- */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+    .modal-actions .btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .modal-actions .btn-success {
+        background-color: #28a745;
+        border: none;
+        color: white;
+    }
+
+    .modal-actions .btn-danger {
+        background-color: #dc3545;
+        border: none;
+        color: white;
+    }

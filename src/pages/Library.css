@@ -1,8 +1,9 @@
 /* Library Page Styles */
 
 .library-page {
-  padding: 2rem; /* Restore original padding */
-  max-width: 85vw; /* Use 85% of viewport width with nice margins */
+  padding: 1rem 2rem; /* Slightly reduce padding to allow more content width */
+  max-width: none; /* Remove max-width constraint to use full available width */
+  width: 100%; /* Ensure it uses full width */
   margin: 0 auto; /* Keep it centered */
   background-color: #f5f5f5;
   min-height: 100vh;

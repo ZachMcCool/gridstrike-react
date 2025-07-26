@@ -18,6 +18,7 @@ const Library = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [cardBeingEdited, setCardBeingEdited] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isImporting, setIsImporting] = useState(false);
 
   const allFactions = ['Red', 'Green', 'Black', 'White', 'Blue', 'Colorless'];
   const allTypes = ['Unit', 'Spell', 'Equipment', 'Terrain'];
@@ -114,6 +115,117 @@ const Library = () => {
     // This would need to be implemented with a library like html2canvas
     // For now, just show an alert
     alert('Download all cards feature would require implementing image capture of all cards');
+  };
+
+  const importCards = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        setIsImporting(true);
+        const jsonData = JSON.parse(e.target.result);
+        
+        // Handle both array format and object with cards array
+        const cardsArray = Array.isArray(jsonData) ? jsonData : jsonData.cards || [];
+        
+        if (!Array.isArray(cardsArray) || cardsArray.length === 0) {
+          alert('Invalid JSON format. Expected an array of cards or an object with a "cards" property.');
+          return;
+        }
+        
+        // Map the JSON format to our CardModel format
+        const mappedCards = cardsArray.map(card => mapJsonToCardModel(card));
+        
+        const result = await cardService.bulkImportAsync(mappedCards);
+        
+        // Show results
+        const message = `Import completed!\n✅ Success: ${result.success} cards\n❌ Failed: ${result.failed} cards`;
+        if (result.errors.length > 0) {
+          console.error('Import errors:', result.errors);
+        }
+        alert(message);
+        
+        // Reload cards to show imported ones
+        await loadCards();
+        
+      } catch (error) {
+        console.error('Failed to import cards:', error);
+        alert('Failed to import cards. Please check the JSON format and try again.');
+      } finally {
+        setIsImporting(false);
+        // Reset file input
+        event.target.value = '';
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+
+  // Map your JSON format to our CardModel format
+  const mapJsonToCardModel = (jsonCard) => {
+    // Map weapons - handle the different field names
+    const mappedWeapons = (jsonCard.Weapons || jsonCard.weapons || []).map(weapon => ({
+      name: weapon.Name || weapon.name || "",
+      type: weapon.Type || weapon.type || "Melee",
+      attackBonus: weapon.AttackBonus || weapon.attackBonus || 0,
+      range: weapon.Range || weapon.range || "",
+      damage: weapon.Damage || weapon.damage || "",
+      keywords: weapon.Keywords || weapon.keywords || "",
+    }));
+
+    // Map abilities - handle the different field names
+    const mappedAbilities = (jsonCard.Abilities || jsonCard.abilities || []).map(ability => ({
+      title: ability.Title || ability.title || "",
+      description: ability.Description || ability.description || "",
+      cost: ability.Cost || ability.cost || 0,
+      passive: ability.Passive || ability.passive || false,
+    }));
+
+    // Map keywords - handle if they're objects or strings
+    const mappedKeywords = (jsonCard.Keywords || jsonCard.keywords || []).map(keyword => {
+      if (typeof keyword === 'string') {
+        return keyword;
+      } else if (typeof keyword === 'object' && keyword.name) {
+        return keyword.name;
+      }
+      return '';
+    }).filter(k => k); // Remove empty strings
+
+    return {
+      // Don't include the original Id, let Firestore generate a new one
+      cardName: jsonCard.CardName || jsonCard.cardName || "",
+      cardType: jsonCard.CardType || jsonCard.cardType || "Unit",
+      faction: jsonCard.Faction || jsonCard.faction || "",
+      rarity: jsonCard.Rarity || jsonCard.rarity || "Common",
+      size: jsonCard.Size || jsonCard.size || "",
+      type: jsonCard.Type || jsonCard.type || "",
+      token: jsonCard.Token || jsonCard.token || false,
+      keywords: mappedKeywords,
+      
+      // Unit stats - map HP to hp, AC to ac, etc.
+      hp: jsonCard.HP || jsonCard.hp || 0,
+      ac: jsonCard.AC || jsonCard.ac || 0,
+      move: jsonCard.Move || jsonCard.move || 0,
+      weapons: mappedWeapons,
+      abilities: mappedAbilities,
+      
+      // Spell properties
+      spellType: jsonCard.SpellType || jsonCard.spellType || "",
+      energyCost: jsonCard.EnergyCost || jsonCard.energyCost || 0,
+      range: jsonCard.Range || jsonCard.range || "",
+      effect: jsonCard.Effect || jsonCard.effect || "",
+      
+      // Terrain properties
+      auraType: jsonCard.AuraType || jsonCard.auraType || "",
+      losBlocking: jsonCard.LosBlocking || jsonCard.losBlocking || false,
+    };
+  };
+
+  const handleImportClick = () => {
+    // Trigger file input click
+    document.getElementById('card-import-input').click();
   };
 
   const toggleFaction = (faction) => {
@@ -239,12 +351,26 @@ const Library = () => {
         <button className="btn btn-success" onClick={openNewCardModal}>
           + New Card
         </button>
+        <button 
+          className="btn btn-info" 
+          onClick={handleImportClick}
+          disabled={isImporting}
+        >
+          {isImporting ? '📤 Importing...' : '📁 Import Cards'}
+        </button>
         <button className="btn btn-primary" onClick={downloadAllCards}>
           Download All Cards
         </button>
         <button className="btn btn-primary" onClick={exportCards}>
           Export Cards
         </button>
+        <input
+          id="card-import-input"
+          type="file"
+          accept=".json"
+          onChange={importCards}
+          style={{ display: 'none' }}
+        />
       </div>
 
       <div className="card-gallery">

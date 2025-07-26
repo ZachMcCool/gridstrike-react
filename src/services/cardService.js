@@ -179,6 +179,51 @@ export class CardService {
       throw error;
     }
   }
+
+  /**
+   * Bulk import cards from JSON data
+   */
+  async bulkImportAsync(cardsData) {
+    try {
+      logger.debug(`Starting bulk import of ${cardsData.length} cards`);
+
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: [],
+      };
+
+      for (const cardData of cardsData) {
+        try {
+          // Convert to CardModel to ensure proper structure
+          const card = CardModel.fromJSON(cardData);
+
+          // Remove id field if present, let Firestore generate one
+          const { id, ...dataToAdd } = card.toJSON();
+
+          await addDoc(this.cardsRef, dataToAdd);
+          results.success++;
+
+          logger.debug(`Successfully imported card: ${card.cardName}`);
+        } catch (error) {
+          results.failed++;
+          results.errors.push({
+            cardName: cardData.cardName || "Unknown",
+            error: error.message,
+          });
+          logger.error(`Failed to import card: ${cardData.cardName}`, error);
+        }
+      }
+
+      logger.info(
+        `Bulk import completed: ${results.success} success, ${results.failed} failed`
+      );
+      return results;
+    } catch (error) {
+      logger.error("Error during bulk import:", error);
+      throw error;
+    }
+  }
 }
 
 // Create a default instance

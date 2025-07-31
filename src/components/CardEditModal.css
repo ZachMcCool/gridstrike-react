@@ -299,6 +299,221 @@
     background-color: transparent;
 }
 
+/* -------- AI Generation Buttons -------- */
+.ai-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.ai-section h4 {
+    margin: 0 0 1rem 0;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.ai-prompt-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ai-prompt-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    backdrop-filter: blur(10px);
+}
+
+.ai-prompt-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.ai-prompt-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ai-generate-button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.ai-generate-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+.ai-generate-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Small AI buttons for individual fields */
+.ai-field-button-small {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ai-field-button-small:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.ai-field-button-small:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+}
+
+.ai-loading-small {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Description AI buttons container */
+.description-ai-buttons {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.description-ai-buttons .ai-field-button-small {
+    position: relative;
+    transform: none;
+    top: auto;
+    right: auto;
+}
+
+.description-ai-buttons .ai-field-button-small.generate {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.description-ai-buttons .ai-field-button-small.improve {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    color: #2d3436;
+}
+
+.description-ai-buttons .ai-field-button-small.improve:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(255, 234, 167, 0.4);
+}
+
+/* Field containers need relative positioning for absolute buttons */
+.field-with-ai {
+    position: relative;
+}
+
+.field-with-ai input,
+.field-with-ai select,
+.field-with-ai textarea {
+    padding-right: 42px; /* Make room for AI button */
+}
+
+.field-with-ai textarea {
+    padding-right: 60px; /* More room for multiple buttons */
+}
+
+/* AI button positioned inside the input on the right */
+.ai-field-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    border: none;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 10;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ai-field-button:hover {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.ai-field-button:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.ai-field-button:disabled:hover {
+    transform: translateY(-50%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* For form groups with labels, adjust button position */
+.form-group .field-with-ai .ai-field-button {
+    top: calc(50% + 10px); /* Account for label height */
+}
+
+/* -------- Loading Animation -------- */
+.ai-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* -------- Responsive Design -------- */
 @media (max-width: 1024px) {
     .modal-content {

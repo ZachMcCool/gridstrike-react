@@ -3,6 +3,7 @@ import CardComponent from '../components/CardComponent.jsx';
 import CardEditModal from '../components/CardEditModal.jsx';
 import { CardModel } from '../models/CardModel.js';
 import { cardService } from '../services/cardService.js';
+import { aiService } from '../services/aiService.js';
 import './Library.css';
 
 /**
@@ -19,6 +20,7 @@ const Library = () => {
   const [cardBeingEdited, setCardBeingEdited] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
+  const [showAiSettings, setShowAiSettings] = useState(false);
 
   const allFactions = ['Red', 'Green', 'Black', 'White', 'Blue', 'Colorless'];
   const allTypes = ['Unit', 'Spell', 'Equipment', 'Terrain'];
@@ -296,7 +298,55 @@ const Library = () => {
 
   return (
     <div className="library-page">
-      <h3>Unit Cards</h3>
+      <div className="page-header">
+        <h3>GridStrike Card Library</h3>
+        
+        <div className="header-controls">
+          <button 
+            onClick={openNewCardModal} 
+            className="btn btn-primary"
+          >
+            <i className="fas fa-plus"></i> Add New Card
+          </button>
+          
+          <button 
+            onClick={() => setShowAiSettings(!showAiSettings)} 
+            className="btn btn-secondary"
+            title="AI Settings"
+          >
+            <i className="fas fa-robot"></i> AI Settings
+          </button>
+        </div>
+      </div>
+
+      {showAiSettings && (
+        <div className="ai-settings-panel">
+          <h4><i className="fas fa-robot"></i> AI Configuration</h4>
+          <div className="ai-settings">
+            <label>
+              <input
+                type="checkbox"
+                checked={aiService.useAssistant}
+                onChange={(e) => aiService.setUseAssistant(e.target.checked)}
+              />
+              Use OpenAI Assistant (Recommended - 90% cheaper!)
+            </label>
+            <p className="ai-info">
+              <i className="fas fa-info-circle"></i>
+              {aiService.useAssistant 
+                ? "Using OpenAI Assistant: ~100 tokens per request (~$0.00002)"
+                : "Using Direct Completions: ~1200 tokens per request (~$0.0002)"
+              }
+            </p>
+            {aiService.useAssistant && aiService.assistantId && (
+              <p className="ai-status">
+                <i className="fas fa-check-circle"></i>
+                Assistant initialized with game rules and card library
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="filters">
         <fieldset>
@@ -348,9 +398,6 @@ const Library = () => {
       </div>
 
       <div className="action-buttons">
-        <button className="btn btn-success" onClick={openNewCardModal}>
-          <i className="fas fa-plus"></i> New Card
-        </button>
         <button 
           className="btn btn-info" 
           onClick={handleImportClick}

@@ -14,6 +14,18 @@ import {
   orderBy,
 } from "firebase/firestore";
 
+// Import aiService for library syncing
+let aiService = null;
+
+// Lazy load aiService to avoid circular dependency
+const getAiService = async () => {
+  if (!aiService) {
+    const { aiService: service } = await import("./aiService.js");
+    aiService = service;
+  }
+  return aiService;
+};
+
 /**
  * Card service using Firebase Firestore
  * Direct connection to Firestore database
@@ -84,6 +96,15 @@ export class CardService {
 
       const createdCard = CardModel.fromJSON({ id: docRef.id, ...dataToAdd });
       logger.info(`Successfully created card: ${createdCard.cardName}`);
+
+      // Sync AI library
+      try {
+        const ai = await getAiService();
+        await ai.syncCardLibrary();
+      } catch (error) {
+        logger.warn("Failed to sync AI library after card creation:", error);
+      }
+
       return createdCard;
     } catch (error) {
       logger.error("Error creating card:", error);
@@ -108,6 +129,15 @@ export class CardService {
 
       const updated = CardModel.fromJSON({ id, ...dataToUpdate });
       logger.info(`Successfully updated card: ${updated.cardName}`);
+
+      // Sync AI library
+      try {
+        const ai = await getAiService();
+        await ai.syncCardLibrary();
+      } catch (error) {
+        logger.warn("Failed to sync AI library after card update:", error);
+      }
+
       return updated;
     } catch (error) {
       logger.error(`Error updating card ${id}:`, error);
@@ -125,6 +155,15 @@ export class CardService {
       await deleteDoc(cardDoc);
 
       logger.info(`Successfully deleted card ${id}`);
+
+      // Sync AI library
+      try {
+        const ai = await getAiService();
+        await ai.syncCardLibrary();
+      } catch (error) {
+        logger.warn("Failed to sync AI library after card deletion:", error);
+      }
+
       return true;
     } catch (error) {
       logger.error(`Error deleting card ${id}:`, error);

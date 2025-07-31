@@ -6,8 +6,16 @@ A React-based card game application built with Vite and Firebase Firestore for d
 
 - Card management (create, read, update, delete)
 - Deck building and management
+- **AI-Powered Card Generation** with OpenAI GPT-4
+- **Smart field suggestions** - AI can improve individual card fields
+- **Full card generation** from natural language prompts
+- **Context-aware AI** that references your existing card library for balanced suggestions
 - Real-time data storage with Firebase Firestore
 - Modern React UI with component-based architecture
+- Bulk card import from JSON files
+- Card export to image functionality
+- Font Awesome icons throughout
+- Responsive design
 
 ## Setup
 
@@ -31,9 +39,21 @@ A React-based card game application built with Vite and Firebase Firestore for d
    - Get your Firebase config from Project Settings > General > Web Apps
    - Copy the config values to your `.env` file (see Configuration below)
 
+#### Getting Your OpenAI API Key
+
+1. Go to [platform.openai.com](https://platform.openai.com)
+2. Sign in with your OpenAI account (ChatGPT Premium subscription gives you access)
+3. Navigate to **API Keys** in your account settings
+4. Click **Create new secret key**
+5. Copy the key and paste it in your `.env` file as `VITE_OPENAI_API_KEY`
+
+**Note**: The AI features require an OpenAI API key. Without it, the AI generation buttons will show an error message but the app will still function normally for manual card creation.
+
+**Security Warning**: In production, you should proxy OpenAI API calls through your backend to avoid exposing your API key in the browser. The current implementation is for development purposes.
+
 ### Configuration
 
-Create a `.env` file in the root directory with your Firebase configuration:
+Create a `.env` file in the root directory with your Firebase and OpenAI configuration:
 
 ```env
 # Firebase Configuration - REPLACE WITH YOUR ACTUAL VALUES
@@ -43,6 +63,9 @@ VITE_FIREBASE_PROJECT_ID=your-project-id
 VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
+
+# OpenAI Configuration - FOR AI CARD GENERATION
+VITE_OPENAI_API_KEY=your-openai-api-key-here
 
 # Application Settings
 VITE_DETAILED_ERRORS=true

@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const OpenAI = require('openai');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const OpenAI = require("openai");
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,10 +15,10 @@ app.use(cors());
 app.use(express.json());
 
 // AI Generation endpoint
-app.post('/api/ai/generate', async (req, res) => {
+app.post("/api/ai/generate", async (req, res) => {
   try {
     const { prompt, useAssistant } = req.body;
-    
+
     if (useAssistant) {
       // Assistant logic here
       const assistant = await openai.beta.assistants.create({
@@ -26,7 +26,7 @@ app.post('/api/ai/generate', async (req, res) => {
         instructions: "Expert GridStrike card creator...",
         model: "gpt-4o",
       });
-      
+
       // ... rest of assistant logic
     } else {
       const completion = await openai.chat.completions.create({
@@ -34,12 +34,15 @@ app.post('/api/ai/generate', async (req, res) => {
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
       });
-      
-      res.json({ success: true, content: completion.choices[0].message.content });
+
+      res.json({
+        success: true,
+        content: completion.choices[0].message.content,
+      });
     }
   } catch (error) {
-    console.error('AI Error:', error);
-    res.status(500).json({ success: false, error: 'AI generation failed' });
+    console.error("AI Error:", error);
+    res.status(500).json({ success: false, error: "AI generation failed" });
   }
 });
 
